@@ -1,6 +1,14 @@
 # Build multi architectural docker images via GitHub Actions
 
 ## Steps
+### Create a New GitHub Repository as a Fork
+
+1. Navigate to the [workshop-github-actions repository](https://github.com/ArmDeveloperEcosystem/workshop-github-actions/).
+2. Click the **Fork** button in the top-right corner of the page.
+3. In the **Create a fork** dialog:
+    - Select your GitHub account or organization where you want to create the fork.
+    - Optionally, provide a name for the forked repository (default is `workshop-github-actions`).
+    - Click **Create fork**.
 
 ### Retrieve Your Docker Username and Password
 
