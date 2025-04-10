@@ -30,11 +30,10 @@
 
 ### Run the GitHub Actions Workflow
 
-1. Ensure your repository contains a `.github/workflows` directory with the appropriate workflow YAML file for building multi-architecture Docker images.
+1. Go to the `Actions` page for your GitHub repository.
 2. Trigger the `image-build.yml` workflow manually:
-    - Navigate to the **Actions** tab in your GitHub repository.
-    - Select the workflow for building Docker images. It is located at [`.github/workflows/image-build.yml`](.github/workflows/image-build.yml)
-    - Click **Run workflow**.
+    - The workflow is located at [`.github/workflows/image-build.yml`](.github/workflows/image-build.yml)
+    - From the `Actions` page, click **Run workflow**.
 3. Monitor the workflow execution:
     - Check the progress and logs in the **Actions** tab.
     - Ensure the workflow completes successfully without errors.
