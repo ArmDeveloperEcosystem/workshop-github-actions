@@ -26,8 +26,8 @@ jobs:
           password: ${{secrets.DOCKER_PAT}}
       - name: Build and push
         run: |
-            docker build --tag ${{env.USER}}/docker-uname:${{matrix.arch}}  .
-            docker push ${{env.USER}}/docker-uname:${{matrix.arch}}
+            docker build --tag ${{env.USER}}/docker-test:${{matrix.arch}}  .
+            docker push ${{env.USER}}/docker-test:${{matrix.arch}}
 
   docker_manifest:
     needs: docker_build
@@ -40,5 +40,27 @@ jobs:
           password: ${{secrets.DOCKER_PAT}}
       - name: Create and push manifest
         run: |
-            docker manifest create ${{env.USER}}/docker-uname ${{env.USER}}/docker-uname:amd64 ${{env.USER}}/docker-uname:arm64
-            docker manifest push ${{env.USER}}/docker-uname
+            docker manifest create ${{env.USER}}/docker-test ${{env.USER}}/docker-test:amd64 ${{env.USER}}/docker-test:arm64
+            docker manifest push ${{env.USER}}/docker-test
+
+  docker_test:
+    needs: docker_manifest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            arch: amd64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+    steps:
+      - name: Run Docker and check output
+        run: |
+            docker run -d --name docker-test --rm ${{env.USER}}/docker-test:latest
+            sleep 5 # Wait for the container to start
+            output=$(docker exec docker-test wget -qO- localhost:8080)
+            if [[ "$output" != "Hello from image NODE:, POD:, CPU PLATFORM:linux/${{matrix.arch}}" ]]; then
+              echo "Unexpected output: $output"
+              exit 1
+            fi
+            echo "Expected output received: $output"
