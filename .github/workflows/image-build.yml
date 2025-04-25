@@ -5,6 +5,7 @@ on:
 
 env:
   USER: ${{secrets.DOCKER_USER}}
+  IMAGE_NAME: docker-test
 
 jobs:
   docker_build:
@@ -26,8 +27,8 @@ jobs:
           password: ${{secrets.DOCKER_PAT}}
       - name: Build and push
         run: |
-            docker build --tag ${{env.USER}}/docker-test:${{matrix.arch}}  .
-            docker push ${{env.USER}}/docker-test:${{matrix.arch}}
+            docker build --tag ${{env.USER}}/${{env.IMAGE_NAME}}:${{matrix.arch}} .
+            docker push ${{env.USER}}/${{env.IMAGE_NAME}}:${{matrix.arch}}
 
   docker_manifest:
     needs: docker_build
@@ -40,8 +41,8 @@ jobs:
           password: ${{secrets.DOCKER_PAT}}
       - name: Create and push manifest
         run: |
-            docker manifest create ${{env.USER}}/docker-test ${{env.USER}}/docker-test:amd64 ${{env.USER}}/docker-test:arm64
-            docker manifest push ${{env.USER}}/docker-test
+            docker manifest create ${{env.USER}}/${{env.IMAGE_NAME}} ${{env.USER}}/${{env.IMAGE_NAME}}:amd64 ${{env.USER}}/${{env.IMAGE_NAME}}:arm64
+            docker manifest push ${{env.USER}}/${{env.IMAGE_NAME}}
 
   docker_test:
     needs: docker_manifest
@@ -56,9 +57,9 @@ jobs:
     steps:
       - name: Run Docker and check output
         run: |
-            docker run -d --name docker-test --rm ${{env.USER}}/docker-test:latest
+            docker run -d --name ${{env.IMAGE_NAME}} --rm ${{env.USER}}/${{env.IMAGE_NAME}}:latest
             sleep 5 # Wait for the container to start
-            output=$(docker exec docker-test wget -qO- localhost:8080)
+            output=$(docker exec ${{env.IMAGE_NAME}} wget -qO- localhost:8080)
             if [[ "$output" != "Hello from image NODE:, POD:, CPU PLATFORM:linux/${{matrix.arch}}" ]]; then
               echo "Unexpected output: $output"
               exit 1
