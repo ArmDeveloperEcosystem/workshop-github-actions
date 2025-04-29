@@ -1,7 +1,16 @@
-name: image-build
+name: Build and Test Docker Image
 
 on:
   workflow_dispatch:
+    inputs:
+      run_tests:
+        type: boolean
+        description: "Test docker image after build"
+        required: true
+        default: true
+  push:
+    branches:
+      - main
 
 env:
   USER: ${{secrets.DOCKER_USER}}
@@ -13,9 +22,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-24.04
+          - os: ${{vars.BASE_OS}}
             arch: amd64
-          - os: ubuntu-24.04-arm
+          - os: ${{vars.BASE_OS}}-arm
             arch: arm64
     steps:
       - name: Checkout
@@ -32,7 +41,7 @@ jobs:
 
   docker_manifest:
     needs: docker_build
-    runs-on: ubuntu-latest
+    runs-on: ${{vars.BASE_OS}}-arm
     steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -45,23 +54,28 @@ jobs:
             docker manifest push ${{env.USER}}/${{env.IMAGE_NAME}}
 
   docker_test:
+    if: ${{github.event.inputs.run_tests == 'true' || github.event.inputs.run_tests == null}}
     needs: docker_manifest
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-          - os: ubuntu-24.04
-            arch: amd64
-          - os: ubuntu-24.04-arm
-            arch: arm64
+          - os: ${{vars.BASE_OS}}
+            platform: linux/amd64
+          - os: ${{vars.BASE_OS}}-arm
+            platform: linux/arm64
     steps:
       - name: Run Docker and check output
+        shell: bash
         run: |
-            docker run -d --name ${{env.IMAGE_NAME}} --rm ${{env.USER}}/${{env.IMAGE_NAME}}:latest
-            sleep 5 # Wait for the container to start
-            output=$(docker exec ${{env.IMAGE_NAME}} wget -qO- localhost:8080)
-            if [[ "$output" != "Hello from image NODE:, POD:, CPU PLATFORM:linux/${{matrix.arch}}" ]]; then
-              echo "Unexpected output: $output"
-              exit 1
-            fi
-            echo "Expected output received: $output"
+          # Run our container
+          docker run -d --name ${{env.IMAGE_NAME}} --rm ${{env.USER}}/${{env.IMAGE_NAME}}:latest
+          sleep 5 # Wait for the container to start
+
+          # Check the output
+          output=$(docker exec ${{env.IMAGE_NAME}} wget -qO- localhost:8080)
+          if [[ "$output" != "Hello from image NODE:, POD:, CPU PLATFORM:${{matrix.platform}}" ]]; then
+          echo "Unexpected output: $output"
+          exit 1
+          fi
+          echo "Expected output received: $output"

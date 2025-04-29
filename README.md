@@ -27,7 +27,7 @@
     - Click **Generate** and copy the token.  
     **Note**: Make sure to save the token securely as it will not be shown again.
 
-### Add Docker Credentials to GitHub Actions
+### Add Variables to GitHub Actions
 
 1. Go to your GitHub repository.
 2. Click on the **Settings** tab.
@@ -36,6 +36,10 @@
 5. Add the following secrets:
     - `DOCKER_USER`: Your Docker username.
     - `DOCKER_PAT`: Your Docker Personal Access Token we generated above.
+6. Move from the **Secrets** tab to the **Variables** tab
+7. Click the **New repository variable** button.
+8. Add the following variable:
+    - `BASE_OS`: `ubuntu-24.04`
 
 ### Run the GitHub Actions Workflow
 
