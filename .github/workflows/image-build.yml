@@ -13,7 +13,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: githubactions-test
+  IMAGE_NAME: multi-arch-go
 
 jobs:
   docker_build:
