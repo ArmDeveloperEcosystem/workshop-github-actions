@@ -102,7 +102,7 @@ jobs:
         run: |
           docker buildx imagetools inspect ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{ steps.meta.outputs.version }}
     outputs:
-      tag: ${{ steps.meta.outputs.version }}
+      image-tag: ${{ steps.meta.outputs.version }}
 
   docker_test:
     if: ${{github.event.inputs.run_tests == 'true' || github.event.inputs.run_tests == null}}
@@ -120,7 +120,7 @@ jobs:
         shell: bash
         run: |
           # Run our container
-          docker run -d --name ${{env.IMAGE_NAME}} --rm ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{ needs.docker_merge.outputs.tag }}
+          docker run -d --name ${{env.IMAGE_NAME}} --rm ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{ needs.docker_merge.outputs.image-tag }}
           sleep 5 # Wait for the container to start
 
           # Check the output
