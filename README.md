@@ -1,5 +1,11 @@
 # Build multi architectural docker images via GitHub Actions
 
+## Requirements
+
+- A GitHub account to fork the repository and configure GitHub Actions.
+- A Docker account to create and manage Docker images.
+- Access to a web browser and internet connection.
+
 ## Steps
 
 ### Create a New GitHub Repository as a Fork
@@ -37,7 +43,7 @@
     - `DOCKER_PAT`: Your Docker Personal Access Token we generated above.
 6. Move from the **Secrets** tab to the **Variables** tab
 7. Click the **New repository variable** button.
-8. Add the following variable:3
+8. Add the following variables:
     - `DOCKER_USER`: Your Docker username.
     - `BASE_OS`: `ubuntu-24.04`
 
