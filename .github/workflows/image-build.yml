@@ -24,10 +24,8 @@ jobs:
         include:
           - os: ${{vars.BASE_OS}}
             platform: linux/amd64
-            tag: amd64
           - os: ${{vars.BASE_OS}}-arm
             platform: linux/arm64
-            tag: arm64
     steps:
       - name: Prepare
         run: |
@@ -51,7 +49,7 @@ jobs:
         with:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}, ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{matrix.tag}} 
+          tags: ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
       - name: Export digest
         run: |
