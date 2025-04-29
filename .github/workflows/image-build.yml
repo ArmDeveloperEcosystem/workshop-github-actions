@@ -56,7 +56,6 @@ jobs:
           mkdir -p ${{ runner.temp }}/digests
           digest="${{ steps.build.outputs.digest }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
-
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
@@ -87,6 +86,7 @@ jobs:
         with:
           images: ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}
           tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
@@ -101,6 +101,8 @@ jobs:
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{ steps.meta.outputs.version }}
+    outputs:
+      tag: ${{ steps.meta.outputs.version }}
 
   docker_test:
     if: ${{github.event.inputs.run_tests == 'true' || github.event.inputs.run_tests == null}}
@@ -118,7 +120,7 @@ jobs:
         shell: bash
         run: |
           # Run our container
-          docker run -d --name ${{env.IMAGE_NAME}} --rm ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:latest
+          docker run -d --name ${{env.IMAGE_NAME}} --rm ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{ needs.docker_merge.outputs.tag }}
           sleep 5 # Wait for the container to start
 
           # Check the output
