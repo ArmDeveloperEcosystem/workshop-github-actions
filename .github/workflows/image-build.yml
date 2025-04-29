@@ -64,7 +64,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
   
-
   docker_merge:
     needs: docker_build
     runs-on: ${{vars.BASE_OS}}-arm
@@ -91,13 +90,11 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}@sha256:%s ' *)
-
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{ steps.meta.outputs.version }}
