@@ -34,11 +34,11 @@
 3. In the left sidebar, select **Secrets and variables** > **Actions**.
 4. Click the **New repository secret** button.
 5. Add the following secrets:
-    - `DOCKER_USER`: Your Docker username.
     - `DOCKER_PAT`: Your Docker Personal Access Token we generated above.
 6. Move from the **Secrets** tab to the **Variables** tab
 7. Click the **New repository variable** button.
-8. Add the following variable:
+8. Add the following variable:3
+    - `DOCKER_USER`: Your Docker username.
     - `BASE_OS`: `ubuntu-24.04`
 
 ### Run the GitHub Actions Workflow

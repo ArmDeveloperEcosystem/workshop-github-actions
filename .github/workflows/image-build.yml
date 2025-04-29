@@ -13,7 +13,6 @@ on:
       - main
 
 env:
-  USER: ${{secrets.DOCKER_USER}}
   IMAGE_NAME: docker-test
 
 jobs:
@@ -29,15 +28,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Extract Docker image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ vars.DOCKER_USER }}/${{env.IMAGE_NAME}}
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{env.USER}}
+          username: ${{vars.DOCKER_USER}}
           password: ${{secrets.DOCKER_PAT}}
       - name: Build and push
         run: |
-            docker build --tag ${{env.USER}}/${{env.IMAGE_NAME}}:${{matrix.arch}} .
-            docker push ${{env.USER}}/${{env.IMAGE_NAME}}:${{matrix.arch}}
+            docker build --tag ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{matrix.arch}} .
+            docker push ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:${{matrix.arch}}
 
   docker_manifest:
     needs: docker_build
@@ -46,12 +50,12 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{env.USER}}
+          username: ${{vars.DOCKER_USER}}
           password: ${{secrets.DOCKER_PAT}}
       - name: Create and push manifest
         run: |
-            docker manifest create ${{env.USER}}/${{env.IMAGE_NAME}} ${{env.USER}}/${{env.IMAGE_NAME}}:amd64 ${{env.USER}}/${{env.IMAGE_NAME}}:arm64
-            docker manifest push ${{env.USER}}/${{env.IMAGE_NAME}}
+            docker manifest create ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}} ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:amd64 ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:arm64
+            docker manifest push ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}
 
   docker_test:
     if: ${{github.event.inputs.run_tests == 'true' || github.event.inputs.run_tests == null}}
@@ -69,7 +73,7 @@ jobs:
         shell: bash
         run: |
           # Run our container
-          docker run -d --name ${{env.IMAGE_NAME}} --rm ${{env.USER}}/${{env.IMAGE_NAME}}:latest
+          docker run -d --name ${{env.IMAGE_NAME}} --rm ${{vars.DOCKER_USER}}/${{env.IMAGE_NAME}}:latest
           sleep 5 # Wait for the container to start
 
           # Check the output
