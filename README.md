@@ -6,6 +6,10 @@
 - A Docker account to create and manage Docker images.
 - Access to a web browser and internet connection.
 
+## Presentation
+
+You can [download the presentation slides here](docs/githubactions.pdf).
+
 ## Steps
 
 ### Create a New GitHub Repository as a Fork
